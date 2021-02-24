@@ -1,6 +1,6 @@
 #include <iostream>
-#include "cpu.hpp"
 #include <string.h>
+#include "instructions.hpp"
 
 CPU::CPU()
 {
@@ -37,18 +37,52 @@ void CPU::simulate_pif()
 uint8_t CPU::get_opcode()
 {
     uint32_t opcode = mmu->read32(pc);
-    return (opcode >> 56) & 0b1111'1111;
+    return (opcode >> 26) & 0b11'1111;
 }
 
 void CPU::emulate_cycle()
 {
-    uint8_t opcode = get_opcode();
-    switch (opcode)
+    uint8_t instr = get_opcode();
+    uint32_t opcode = mmu->read32(pc);
+    switch (instr)
     {
-
+    case 0x9: //addiu
+    {
+        addiu(*this, opcode);
+        break;
+    }
+    case 0xF: //lui
+    {
+        lui(*this, opcode);
+        break;
+    }
+    case 0x10: //mtc0
+    {
+        //std::cout << "cop0 ";
+        cop_handler(*this, opcode);
+        break;
+    }
+    case 0x11: //mtc1
+    {
+        std::cout << "cop1 ";
+        cop_handler(*this, opcode);
+        break;
+    }
+    case 0x12: //mtc2
+    {
+        std::cout << "cop2 ";
+        cop_handler(*this, opcode);
+        break;
+    }
+    case 0x23:
+    {
+        lw(*this, opcode);
+        break;
+    }
     default:
         std::cout << "Instruction: " << std::hex << (int)opcode << " is not implemented";
         exit(-1);
         break;
     }
+    pc += 4;
 }

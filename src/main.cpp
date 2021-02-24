@@ -56,6 +56,10 @@ int main(int argc, char *args[])
 	// //Quit SDL subsystems
 	// SDL_Quit();
 	CPU cpu;
-	cpu.emulate_cycle();
+	while (true)
+	{
+		cpu.emulate_cycle();
+	}
+
 	return 0;
 }
