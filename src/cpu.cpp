@@ -34,21 +34,36 @@ void CPU::simulate_pif()
     pc = 0xA4000040;
 }
 
-uint8_t CPU::get_opcode()
-{
-    uint32_t opcode = mmu->read32(pc);
-    return (opcode >> 26) & 0b11'1111;
-}
+// uint8_t CPU::get_opcode()
+// {
+//     uint32_t opcode = mmu->read32(pc);
+//     return (opcode >> 26) & 0b11'1111;
+// }
 
-void CPU::emulate_cycle()
+void CPU::emulate_cycle(uint32_t arg)
 {
-    uint8_t instr = get_opcode();
-    uint32_t opcode = mmu->read32(pc);
+    uint32_t opcode = mmu->read32(arg);
+    uint8_t instr = (opcode >> 26) & 0b11'1111;
     switch (instr)
     {
+    case 0x0: //special :deepfried:
+    {
+        break;
+    }
+
+    case 0x5: //bne
+    {
+        bne(*this, opcode);
+        break;
+    }
     case 0x9: //addiu
     {
         addiu(*this, opcode);
+        break;
+    }
+    case 0xD: //ori
+    {
+        ori(*this, opcode);
         break;
     }
     case 0xF: //lui
@@ -74,9 +89,14 @@ void CPU::emulate_cycle()
         cop_handler(*this, opcode);
         break;
     }
-    case 0x23:
+    case 0x23: //lw
     {
         lw(*this, opcode);
+        break;
+    }
+    case 0x2B: //sw
+    {
+        sw(*this, opcode);
         break;
     }
     default:
@@ -84,5 +104,4 @@ void CPU::emulate_cycle()
         exit(-1);
         break;
     }
-    pc += 4;
 }

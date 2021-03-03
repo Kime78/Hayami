@@ -3,7 +3,7 @@
 
 uint32_t MMU::virt_to_phys(uint64_t virt)
 {
-    if ((virt >= 0x80000000 && virt <= 0x9FFFFFFF) | (virt >= 0xA0000000 && virt <= 0xBFFFFFFF))
+    if ((virt >= 0x80000000 && virt <= 0x9FFFFFFF) || (virt >= 0xA0000000 && virt <= 0xBFFFFFFF))
     {
         return virtual_to_physical_direct(virt);
     }
@@ -129,9 +129,9 @@ uint64_t MMU::read64(uint64_t addr)
 
     else if (phys >= 0x1FC007C0 && phys <= 0x1FC007FF)
     {
-        return (uint64_t)(pif_ram[phys - 0x1FC007FF] << 56 | (uint64_t)(pif_ram[phys - 0x1FC007FF + 1]) << 48 | (uint64_t)(pif_ram[phys - 0x1FC007FF + 2]) << 40 |
-               (uint64_t)(pif_ram[phys - 0x1FC007FF + 3] << 32 | (uint64_t)(pif_ram[phys - 0x1FC007FF + 4]) << 24 | (uint64_t)(pif_ram[phys - 0x1FC007FF + 5]) << 16 |
-               (uint64_t)(pif_ram[phys - 0x1FC007FF + 6] << 8 | (uint64_t)(pif_ram[phys - 0x1FC007FF + 7]);
+        return (uint64_t)(pif_ram[phys - 0x1FC007FF]) << 56 | (uint64_t)(pif_ram[phys - 0x1FC007FF + 1]) << 48 | (uint64_t)(pif_ram[phys - 0x1FC007FF + 2]) << 40 |
+               (uint64_t)(pif_ram[phys - 0x1FC007FF + 3]) << 32 | (uint64_t)(pif_ram[phys - 0x1FC007FF + 4]) << 24 | (uint64_t)(pif_ram[phys - 0x1FC007FF + 5]) << 16 |
+               (uint64_t)(pif_ram[phys - 0x1FC007FF + 6]) << 8 | (uint64_t)(pif_ram[phys - 0x1FC007FF + 7]);
     }
 
     else if (phys >= 0x1FD00000 && phys <= 0x7FFFFFFF)

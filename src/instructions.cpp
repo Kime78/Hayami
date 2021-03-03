@@ -69,7 +69,7 @@ void lui(CPU &cpu, uint32_t opcode)
     uint8_t rt = (opcode >> 16) & 0b1111;
     uint64_t imm = (opcode & 0b1111'1111'1111'1111) << 16;
     //64 bit magic
-    if (cpu.operation_mode = 1)
+    if (cpu.operation_mode)
         imm = sign_extension(32, 64, imm);
     cpu.regs[rt] = imm;
 }
@@ -117,4 +117,48 @@ void bne(CPU &cpu, uint32_t opcode)
     uint8_t rt = (opcode >> 16) & 0b1111;
     uint8_t rs = (opcode >> 20) & 0b1111;
     int64_t imm = (opcode & 0b1111'1111'1111'1111);
+    uint32_t delay_slot = cpu.pc + 4;
+    cpu.emulate_cycle(delay_slot); //emulate delay slots
+    uint64_t branch_addr = imm << 2;
+    if (cpu.operation_mode)
+    {
+        imm = sign_extension(18, 64, imm);
+    }
+    else
+    {
+        imm = sign_extension(18, 32, imm);
+    }
+
+    branch_addr += delay_slot;
+    if (cpu.regs[rs] != cpu.regs[rt])
+    {
+        cpu.pc += branch_addr;
+    }
+}
+
+void sw(CPU &cpu, uint32_t opcode)
+{
+    uint8_t rt = (opcode >> 16) & 0b1111;
+    uint8_t base = (opcode >> 20) & 0b1111;
+    int64_t imm = (opcode & 0b1111'1111'1111'1111);
+    if (cpu.operation_mode)
+    {
+        imm = sign_extension(16, 64, imm);
+        cpu.regs[base] += imm;
+    }
+    else
+    {
+        imm = sign_extension(16, 32, imm);
+        cpu.regs[base] += imm;
+    }
+    cpu.mmu->write32(cpu.regs[base], cpu.regs[rt]);
+}
+
+void ori(CPU &cpu, uint32_t opcode)
+{
+    uint8_t rt = (opcode >> 16) & 0b1111;
+    uint8_t rs = (opcode >> 20) & 0b1111;
+    int64_t imm = (opcode & 0b1111'1111'1111'1111);
+
+    cpu.regs[rt] = cpu.regs[rs] || imm;
 }

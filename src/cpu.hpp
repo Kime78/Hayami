@@ -11,10 +11,9 @@ public:
     std::array<uint64_t, 32> cp0_regs;
     std::array<double, 32> floating_regs;
     std::unique_ptr<MMU> mmu;
-    void emulate_cycle();
+    void emulate_cycle(uint32_t opcode);
     uint64_t pc;
     bool operation_mode = 0; //32 bit or 64 bit
 private:
     void simulate_pif();
-    uint8_t get_opcode();
 };

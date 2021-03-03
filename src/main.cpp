@@ -58,7 +58,8 @@ int main(int argc, char *args[])
 	CPU cpu;
 	while (true)
 	{
-		cpu.emulate_cycle();
+		cpu.emulate_cycle(cpu.pc);
+		cpu.pc += 4;
 	}
 
 	return 0;
