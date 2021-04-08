@@ -1,0 +1,225 @@
+lui - 3c08a470
+ rt: 8 imm: a4700000
+
+addiu - 25080000
+ rt: 8 rs: 0 imm: 0
+
+lw - 8d09000c
+ rt: 9 base: 8 imm: c
+
+bne - 152000ed
+ rt: 0 rs: 2 imm: ed
+
+sll - 0
+ rt: 0 rs: 0 sa: 0
+
+sll - 0
+ rt: 0 rs: 0 sa: 0
+
+addiu - 27bdffe8
+ rt: d rs: b imm: ffe8
+
+sw - afb30000
+ rt: 3 base: d imm: 0
+
+sw - afb40004
+ rt: 4 base: d imm: 4
+
+sw - afb50008
+ rt: 5 base: d imm: 8
+
+sw - afb6000c
+ rt: 6 base: d imm: c
+
+sw - afb70010
+ rt: 7 base: d imm: 10
+
+lui - 3c08a470
+ rt: 8 imm: a4700000
+
+addiu - 25080000
+ rt: 8 rs: 0 imm: 0
+
+lui - 3c0aa3f8
+ rt: a imm: a3f80000
+
+lui - 3c0ba3f0
+ rt: b imm: a3f00000
+
+lui - 3c0ca430
+ rt: c imm: a4300000
+
+addiu - 258c0000
+ rt: c rs: 8 imm: 0
+
+ori - 34090040
+ rt: 9 rs: 0 imm: 40
+
+sw - ad090004
+ rt: 9 base: 8 imm: 4
+
+addiu - 24111f40
+ rt: 1 rs: 1 imm: 1f40
+
+sll - 0
+ rt: 0 rs: 0 sa: 0
+
+addi - 2231ffff
+ rt: 1 rs: 3 imm: ffff
+
+bne - 1620fffd
+ rt: 0 rs: 2 imm: fffd
+
+sll - 0
+ rt: 0 rs: 0 sa: 0
+
+sll - 0
+ rt: 0 rs: 0 sa: 0
+
+sw - ad000008
+ rt: 0 base: 8 imm: 8
+
+ori - 34090014
+ rt: 9 rs: 0 imm: 14
+
+sw - ad09000c
+ rt: 9 base: 8 imm: c
+
+sw - ad000000
+ rt: 0 base: 8 imm: 0
+
+addiu - 24110004
+ rt: 1 rs: 1 imm: 4
+
+sll - 0
+ rt: 0 rs: 0 sa: 0
+
+addi - 2231ffff
+ rt: 1 rs: 3 imm: ffff
+
+bne - 1620fffd
+ rt: 0 rs: 2 imm: fffd
+
+sll - 0
+ rt: 0 rs: 0 sa: 0
+
+sll - 0
+ rt: 0 rs: 0 sa: 0
+
+ori - 3409000e
+ rt: 9 rs: 0 imm: e
+
+sw - ad090000
+ rt: 9 base: 8 imm: 0
+
+addiu - 24110020
+ rt: 1 rs: 1 imm: 20
+
+addi - 2231ffff
+ rt: 1 rs: 3 imm: ffff
+
+bne - 1620fffe
+ rt: 0 rs: 2 imm: fffe
+
+ori - 3409010f
+ rt: 9 rs: 0 imm: 10f
+
+ori - 3409010f
+ rt: 9 rs: 0 imm: 10f
+
+sw - ad890000
+ rt: 9 base: c imm: 0
+
+lui - 3c091808
+ rt: 9 imm: 18080000
+
+ori - 35292838
+ rt: 9 rs: 2 imm: 2838
+
+sw - ad490008
+ rt: 9 base: a imm: 8
+
+sw - ad400014
+ rt: 0 base: a imm: 14
+
+lui - 3c098000
+ rt: 9 imm: 80000000
+
+sw - ad490004
+ rt: 9 base: a imm: 4
+
+or - 6825
+ rt: 0 rs: 0 rd: d
+
+or - 7025
+ rt: 0 rs: 0 rd: e
+
+lui - 3c0fa3f0
+ rt: f imm: a3f00000
+
+or - c025
+ rt: 0 rs: 0 rd: 8
+
+lui - 3c19a3f0
+ rt: 9 imm: a3f00000
+
+lui - 3c16a000
+ rt: 6 imm: a0000000
+
+or - b825
+ rt: 0 rs: 0 rd: 7
+
+lui - 3c06a3f0
+ rt: 6 imm: a3f00000
+
+lui - 3c07a000
+ rt: 7 imm: a0000000
+
+or - 9025
+ rt: 0 rs: 0 rd: 2
+
+lui - 3c14a000
+ rt: 4 imm: a0000000
+
+addiu - 27bdffb8
+ rt: d rs: b imm: ffb8
+
+or - 3a0f025
+ rt: d rs: 0 rd: e
+
+lui - 3c10a430
+ rt: 0 imm: a4300000
+
+lw - 8e100004
+ rt: 0 base: 0 imm: 4
+
+lui - 3c110101
+ rt: 1 imm: 1010000
+
+addiu - 26310101
+ rt: 1 rs: 3 imm: 101
+
+bne - 16110005
+ rt: 1 rs: 1 imm: 5
+
+sll - 0
+ rt: 0 rs: 0 sa: 0
+
+sll - 0
+ rt: 0 rs: 0 sa: 0
+
+addiu - 24100200
+ rt: 0 rs: 1 imm: 200
+
+ori - 35714000
+ rt: 1 rs: 7 imm: 4000
+
+beq - 10000003
+ rt: 0 rs: 0 imm: 3
+
+sll - 0
+ rt: 0 rs: 0 sa: 0
+
+addiu - 25f5000c
+ rt: 5 rs: f imm: c
+

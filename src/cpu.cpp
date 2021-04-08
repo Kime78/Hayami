@@ -6,6 +6,7 @@ CPU::CPU()
 {
     mmu = std::make_unique<MMU>();
     simulate_pif();
+    //debug.open("debug.out");
 }
 void CPU::simulate_pif()
 {
@@ -44,16 +45,27 @@ void CPU::emulate_cycle(uint32_t arg)
 {
     uint32_t opcode = mmu->read32(arg);
     uint8_t instr = (opcode >> 26) & 0b11'1111;
+    std::cout << "PC: " << arg << " Instruction: " << std::hex << (int)instr << ": " << (int)opcode << '\n';
     switch (instr)
     {
     case 0x0: //special :deepfried:
     {
+        special_handler(*this, opcode);
         break;
     }
-
+    case 0x4: //beq
+    {
+        beq(*this, opcode);
+        break;
+    }
     case 0x5: //bne
     {
         bne(*this, opcode);
+        break;
+    }
+    case 0x8: //addi
+    {
+        addi(*this, opcode);
         break;
     }
     case 0x9: //addiu
@@ -100,7 +112,7 @@ void CPU::emulate_cycle(uint32_t arg)
         break;
     }
     default:
-        std::cout << "Instruction: " << std::hex << (int)opcode << " is not implemented";
+        std::cout << "Instruction: " << std::hex << (int)instr << ": " << (int)opcode << " is not implemented";
         exit(-1);
         break;
     }

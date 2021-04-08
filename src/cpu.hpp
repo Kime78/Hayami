@@ -1,6 +1,7 @@
 #include <array>
 #include <stdint.h>
 #include <memory>
+#include <fstream>
 
 #include "mmu.hpp"
 class CPU
@@ -14,6 +15,7 @@ public:
     void emulate_cycle(uint32_t opcode);
     uint64_t pc;
     bool operation_mode = 0; //32 bit or 64 bit
+
 private:
     void simulate_pif();
 };
