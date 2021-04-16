@@ -6,6 +6,7 @@ CPU::CPU()
 {
     mmu = std::make_unique<MMU>();
     simulate_pif();
+    debug.open("debug.out");
     //debug.open("debug.out");
 }
 void CPU::simulate_pif()
@@ -45,12 +46,23 @@ void CPU::emulate_cycle(uint32_t arg)
 {
     uint32_t opcode = mmu->read32(arg);
     uint8_t instr = (opcode >> 26) & 0b11'1111;
-    std::cout << "PC: " << arg << " Instruction: " << std::hex << (int)instr << ": " << (int)opcode << '\n';
+    std::cout << "PC: " << arg << " Instruction: " << std::hex << (int)instr << ": " << (int)opcode << " SP: " << (uint64_t)regs[30] << '\n';
+    if (pc == 0x80000000)
+    {
+        pc = pc;
+        exit(0);
+    }
+    //std::cout << std::hex << regs[15] << '\n';
     switch (instr)
     {
     case 0x0: //special :deepfried:
     {
         special_handler(*this, opcode);
+        break;
+    }
+    case 0x3: //jal
+    {
+        jal(*this, opcode);
         break;
     }
     case 0x4: //beq
@@ -73,9 +85,24 @@ void CPU::emulate_cycle(uint32_t arg)
         addiu(*this, opcode);
         break;
     }
+    case 0xA: //slti
+    {
+        slti(*this, opcode);
+        break;
+    }
+    case 0xC: //andi
+    {
+        andi(*this, opcode);
+        break;
+    }
     case 0xD: //ori
     {
         ori(*this, opcode);
+        break;
+    }
+    case 0xE: //xori
+    {
+        xori(*this, opcode);
         break;
     }
     case 0xF: //lui
@@ -101,6 +128,21 @@ void CPU::emulate_cycle(uint32_t arg)
         cop_handler(*this, opcode);
         break;
     }
+    case 0x14: //beql
+    {
+        beql(*this, opcode);
+        break;
+    }
+    case 0x15: //bnel
+    {
+        bnel(*this, opcode);
+        break;
+    }
+    case 0x16: //blezl
+    {
+        blezl(*this, opcode);
+        break;
+    }
     case 0x23: //lw
     {
         lw(*this, opcode);
@@ -109,6 +151,10 @@ void CPU::emulate_cycle(uint32_t arg)
     case 0x2B: //sw
     {
         sw(*this, opcode);
+        break;
+    }
+    case 0x2f: //cache
+    {
         break;
     }
     default:

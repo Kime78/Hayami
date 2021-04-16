@@ -655,6 +655,16 @@ void MMU::write32(uint64_t addr, uint32_t value)
 
     if (phys >= 0x04600000 && phys <= 0x046FFFFF)
     {
+        if (phys == 0x0460000C)
+        {
+            //pi dma
+            for (uint32_t i = 0; i <= value / 4; i++)
+            {
+                uint32_t source = read32(periph_int[0x4] + (i * 4));
+                uint32_t dest = periph_int[0x0] + (i * 4);
+                write32(dest, source);
+            }
+        }
         periph_int[phys - 0x04600000] = nibble4;
         periph_int[phys - 0x04600000 + 1] = nibble3;
         periph_int[phys - 0x04600000 + 2] = nibble2;
@@ -857,5 +867,5 @@ void MMU::load_rom(std::string path)
 
 MMU::MMU()
 {
-    load_rom("./roms/basic.z64");
+    load_rom("./roms/CPUADD.N64");
 }

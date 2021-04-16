@@ -13,6 +13,7 @@ public:
     std::array<double, 32> floating_regs;
     std::unique_ptr<MMU> mmu;
     void emulate_cycle(uint32_t opcode);
+    std::ofstream debug;
     uint64_t pc;
     bool operation_mode = 0; //32 bit or 64 bit
 
