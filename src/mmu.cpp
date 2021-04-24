@@ -662,10 +662,10 @@ void MMU::write32(uint64_t addr, uint32_t value)
             //pi dma
             for (uint32_t i = 0; i <= value / 4; i++)
             {
-                uint32_t write_to = read32(0x84600004) + 0x80000000;
-                uint32_t val = read32(write_to + (i * 4));
-                uint32_t dest = read32(0x84600000) + (i * 4);
-                write32(dest + 0x80000000, val);
+                uint64_t write_to = read32(0x84600004) + 0xFFFFFFFF80000000;
+                uint64_t val = read32(write_to + (i * 4));
+                uint64_t dest = read32(0xFFFFFFFF84600000) + (i * 4);
+                write32(dest + 0xFFFFFFFF80000000, val);
             }
         }
         periph_int[phys - 0x04600000] = nibble4;

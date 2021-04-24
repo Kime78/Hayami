@@ -342,7 +342,7 @@ void multu(CPU &cpu, uint32_t opcode)
     int32_t x = cpu.regs[rt];
     int32_t y = cpu.regs[rs];
 
-    uint64_t rez = cpu.regs[rt] * cpu.regs[rs]; //change to u128
+    uint64_t rez = x * y; //change to u128
     cpu.LO = rez & 0b1111'1111'1111'1111;
     cpu.HI = rez >> 16;
 
