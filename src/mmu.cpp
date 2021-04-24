@@ -3,7 +3,7 @@
 
 uint32_t MMU::virt_to_phys(uint64_t virt)
 {
-    if ((virt >= 0x80000000 && virt <= 0x9FFFFFFF) || (virt >= 0xA0000000 && virt <= 0xBFFFFFFF))
+    if ((virt >= 0xFFFFFFFF80000000 && virt <= 0xFFFFFFFF9FFFFFFF) || (virt >= 0xFFFFFFFFA0000000 && virt <= 0xFFFFFFFFBFFFFFFF))
     {
         return virtual_to_physical_direct(virt);
     }
@@ -15,18 +15,19 @@ uint32_t MMU::virt_to_phys(uint64_t virt)
 
 uint32_t MMU::virtual_to_physical_direct(uint64_t virt)
 {
-    if (virt >= 0x80000000 && virt <= 0x9FFFFFFF) //KSEG0
-    {
-        return virt - 0x80000000;
-    }
-    else if (virt >= 0xA0000000 && virt <= 0xBFFFFFFF) //KSEG1
-    {
-        return virt - 0xA0000000;
-    }
+    // if (virt >= 0xFFFFFFFF80000000 && virt <= 0xFFFFFFFF9FFFFFFF) //KSEG0
+    // {
+    //     return virt - 0xFFFFFFFF80000000;
+    // }
+    // else if (virt >= 0xFFFFFFFFA0000000 && virt <= 0xFFFFFFFFBFFFFFFF) //KSEG1
+    // {
+    //     return virt - 0xFFFFFFFFA0000000;
+    // }
+    return virt & 0x1fffffff;
 }
 uint32_t MMU::virtual_to_physical_tbl(uint64_t virt)
 {
-    //return virt & 0x1fffffff;
+    return virt & 0x1fffffff;
 }
 uint64_t MMU::read64(uint64_t addr)
 {

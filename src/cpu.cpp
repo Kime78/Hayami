@@ -118,11 +118,11 @@ void CPU::simulate_pif()
     for (int ptr = 0; ptr < 0x1000; ptr++)
     {
         uint64_t temp = mmu->read64(0xB0000000 + ptr);
-        mmu->write64(0xA4000000 + ptr, temp);
+        mmu->write64(0xFFFFFFFFA4000000 + ptr, temp);
         //std::cout << (uint64_t)mmu->read64(0xA4000000 + ptr) << std::endl;
     }
 
-    pc = 0xA4000040;
+    pc = 0xFFFFFFFFA4000040;
 }
 
 // uint8_t CPU::get_opcode()
@@ -131,11 +131,12 @@ void CPU::simulate_pif()
 //     return (opcode >> 26) & 0b11'1111;
 // }
 
-void CPU::emulate_cycle(uint32_t arg)
+void CPU::emulate_cycle(int32_t arg)
 {
     //std::cout << std::hex << (int)mmu->read8(0xb0000010) << '\n';
     regs[0] = 0;
-    uint32_t opcode = mmu->read32(arg);
+    int64_t argument = (int64_t)arg;
+    uint32_t opcode = mmu->read32(argument);
     uint8_t instr = (opcode >> 26) & 0b11'1111;
     //std::cout << "PC: " << std::hex << arg << " Instruction: " << (int)instr << ": " << (int)opcode << '\n';
     if (pc == 0x800001AC) //40 important
