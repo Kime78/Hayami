@@ -103,6 +103,7 @@ void addiu(CPU &cpu, uint32_t opcode)
     {
         int32_t tmp = (int32_t)(sign_extension(16, 32, imm));
         cpu.regs[rt] = cpu.regs[rs] + tmp;
+        cpu.regs[rt] = (uint32_t)cpu.regs[rt];
     }
 }
 
@@ -184,7 +185,7 @@ void sw(CPU &cpu, uint32_t opcode)
         addr += imm;
         addr = (uint32_t)addr;
     }
-    cpu.mmu->write32(addr, cpu.regs[rt]);
+    cpu.mmu->write32(addr, (uint32_t)cpu.regs[rt]);
     //std::cout << "SW: " << std::hex << (uint32_t)cpu.mmu->read32((uint32_t)cpu.regs[29]) << '\n';
 }
 
@@ -236,9 +237,13 @@ void sll(CPU &cpu, uint32_t opcode)
     // if (sa == 0)
     //     return; //nop
 
-    cpu.regs[rs] = cpu.regs[rt] << sa;
-    if (cpu.operation_mode)
+    if (!cpu.operation_mode)
+        cpu.regs[rs] = (uint32_t)(cpu.regs[rt] << sa);
+    else
+    {
+        cpu.regs[rs] = (cpu.regs[rt] << sa);
         cpu.regs[rs] = sign_extension(32, 64, cpu.regs[rs]);
+    }
 }
 void srl(CPU &cpu, uint32_t opcode)
 {
@@ -256,25 +261,29 @@ void srl(CPU &cpu, uint32_t opcode)
 }
 void _or(CPU &cpu, uint32_t opcode)
 {
-    uint32_t rt = cpu.regs[(opcode >> 21) & 0b1111'1];
-    uint32_t rs = cpu.regs[(opcode >> 16) & 0b1111'1];
+    uint32_t rt = (opcode >> 21) & 0b1111'1;
+    uint32_t rs = (opcode >> 16) & 0b1111'1;
     uint8_t rd = (opcode >> 11) & 0b1111'1;
     if (DEBUG)
     {
         cpu.debug << std::hex << "or - " << opcode << "\n rt: " << (int)rt << " rs: " << (int)rs << " rd: " << (int)rd << "\n\n";
     }
-    cpu.regs[rd] = rs | rt;
+    cpu.regs[rd] = cpu.regs[rs] | cpu.regs[rt];
+    // if (cpu.operation_mode == 0)
+    // {
+    //     cpu.regs[rd] = (uint32_t)cpu.regs[rd];
+    // }
 }
 void _and(CPU &cpu, uint32_t opcode)
 {
-    uint32_t rt = cpu.regs[(opcode >> 21) & 0b1111'1];
-    uint32_t rs = cpu.regs[(opcode >> 16) & 0b1111'1];
+    uint8_t rt = (opcode >> 21) & 0b1111'1;
+    uint8_t rs = (opcode >> 16) & 0b1111'1;
     uint8_t rd = (opcode >> 11) & 0b1111'1;
     if (DEBUG)
     {
         cpu.debug << std::hex << "and - " << opcode << "\n rt: " << (int)rt << " rs: " << (int)rs << " rd: " << (int)rd << "\n\n";
     }
-    cpu.regs[rd] = rs & rt;
+    cpu.regs[rd] = cpu.regs[rs] & cpu.regs[rt];
 }
 void jr(CPU &cpu, uint32_t opcode)
 {
@@ -284,8 +293,14 @@ void jr(CPU &cpu, uint32_t opcode)
     {
         cpu.debug << std::hex << "jr - " << opcode << "\nrs" << rs << "\n\n";
     }
-    cpu.emulate_cycle(delay_slot); //emulate delay slots
-    cpu.pc = cpu.regs[rs] - 4;     //this is or really right or really wrong
+    cpu.emulate_cycle(delay_slot);
+    uint64_t addr = cpu.regs[rs] - 4;
+    if (!cpu.operation_mode)
+    {
+        addr = (uint32_t)addr;
+    }
+    //emulate delay slots
+    cpu.pc = addr; //this is or really right or really wrong
 }
 
 void addu(CPU &cpu, uint32_t opcode)
@@ -298,6 +313,11 @@ void addu(CPU &cpu, uint32_t opcode)
         cpu.debug << std::hex << "addu - " << opcode << "\n rt: " << (int)rt << " rs: " << (int)rs << " rd: " << (int)rd << "\n\n";
     }
     cpu.regs[rd] = cpu.regs[rt] + cpu.regs[rs];
+    cpu.regs[rd] = (uint32_t)cpu.regs[rd];
+    if (cpu.operation_mode)
+    {
+        cpu.regs[rd] = sign_extension(32, 64, cpu.regs[rd]);
+    }
 }
 void add(CPU &cpu, uint32_t opcode) //TODO: fix me
 {
@@ -324,6 +344,7 @@ void add(CPU &cpu, uint32_t opcode) //TODO: fix me
             cpu.regs[rd] = tmp;
     }
 }
+
 void slt(CPU &cpu, uint32_t opcode)
 {
     uint8_t rt = (opcode >> 16) & 0b1111'1;
@@ -364,6 +385,98 @@ void sltu(CPU &cpu, uint32_t opcode)
         cpu.regs[rd] = 0;
     }
 }
+void subu(CPU &cpu, uint32_t opcode)
+{
+    uint8_t rs = (opcode >> 21) & 0b1111'1;
+    uint8_t rt = (opcode >> 16) & 0b1111'1;
+    uint8_t rd = (opcode >> 11) & 0b1111'1;
+    if (DEBUG)
+    {
+        cpu.debug << std::hex << "subu - " << opcode << "\n rt: " << (int)rt << " rs: " << (int)rs << " rd: " << (int)rd << "\n\n";
+    }
+    cpu.regs[rd] = cpu.regs[rt] - cpu.regs[rs];
+    cpu.regs[rd] = (uint32_t)cpu.regs[rd];
+    if (cpu.operation_mode)
+    {
+        cpu.regs[rd] = sign_extension(32, 64, cpu.regs[rd]);
+    }
+}
+void multu(CPU &cpu, uint32_t opcode)
+{
+    //#pragma message owo
+    uint8_t rs = (opcode >> 21) & 0b1111'1;
+    uint8_t rt = (opcode >> 16) & 0b1111'1;
+    // uint8_t rd = (opcode >> 11) & 0b1111'1;
+    if (DEBUG)
+    {
+        cpu.debug << std::hex << "subu - " << opcode << "\n rt: " << (int)rt << " rs: " << (int)rs << " rd: "
+                  << "\n\n";
+    }
+    uint64_t x = cpu.regs[rt];
+    uint64_t y = cpu.regs[rs];
+    if (cpu.operation_mode)
+    {
+        x = sign_extension(32, 64, cpu.regs[rt]);
+        y = sign_extension(32, 64, cpu.regs[rs]);
+        uint64_t rez = cpu.regs[rt] * cpu.regs[rs]; //change to u128
+        cpu.LO = rez & 0b1111'1111'1111'1111;
+        cpu.HI = rez >> 16;
+
+        cpu.LO = sign_extension(32, 64, cpu.LO);
+        cpu.HI = sign_extension(32, 64, cpu.HI);
+    }
+    else
+    {
+        uint64_t rez = (uint32_t)cpu.regs[rt] * (uint32_t)cpu.regs[rs];
+        cpu.LO = rez & 0b1111'1111'1111'1111;
+        cpu.HI = rez >> 16;
+    }
+}
+void mflo(CPU &cpu, uint32_t opcode)
+{
+    uint8_t rd = (opcode >> 11) & 0b1111'1;
+    cpu.regs[rd] = cpu.LO;
+}
+void srlv(CPU &cpu, uint32_t opcode)
+{
+    uint8_t rt = (opcode >> 21) & 0b1111'1;
+    uint8_t rs = (opcode >> 16) & 0b1111'1;
+    uint8_t rd = (opcode >> 11) & 0b1111'1;
+    if (DEBUG)
+    {
+        cpu.debug << std::hex << "srlv - " << opcode << "\n rt: " << (int)rt << " rs: " << (int)rs << " rd: " << (int)rd << "\n\n";
+    }
+    uint8_t sa = cpu.regs[rs] & 0b1111'1;
+    cpu.regs[rd] = (uint32_t)cpu.regs[rt] >> sa;
+    if (cpu.operation_mode)
+        cpu.regs[rd] = sign_extension(32, 64, cpu.regs[rd]);
+}
+void sllv(CPU &cpu, uint32_t opcode)
+{
+    uint8_t rt = (opcode >> 21) & 0b1111'1;
+    uint8_t rs = (opcode >> 16) & 0b1111'1;
+    uint8_t rd = (opcode >> 11) & 0b1111'1;
+    if (DEBUG)
+    {
+        cpu.debug << std::hex << "sllv - " << opcode << "\n rt: " << (int)rt << " rs: " << (int)rs << " rd: " << (int)rd << "\n\n";
+    }
+    uint8_t sa = cpu.regs[rs] & 0b1111'1;
+    cpu.regs[rd] = cpu.regs[rt] << sa;
+    cpu.regs[rd] = (uint32_t)cpu.regs[rd];
+    if (cpu.operation_mode)
+        cpu.regs[rd] = sign_extension(32, 64, cpu.regs[rd]);
+}
+void _xor(CPU &cpu, uint32_t opcode)
+{
+    uint8_t rt = (opcode >> 21) & 0b1111'1;
+    uint8_t rs = (opcode >> 16) & 0b1111'1;
+    uint8_t rd = (opcode >> 11) & 0b1111'1;
+    if (DEBUG)
+    {
+        cpu.debug << std::hex << "xor - " << opcode << "\n rt: " << (int)rt << " rs: " << (int)rs << " rd: " << (int)rd << "\n\n";
+    }
+    cpu.regs[rd] = cpu.regs[rs] ^ cpu.regs[rt];
+}
 void special_handler(CPU &cpu, uint32_t opcode)
 {
     uint8_t instr = opcode & 0b11'1111;
@@ -381,12 +494,27 @@ void special_handler(CPU &cpu, uint32_t opcode)
     }
     case 0x4: //sllv
     {
-        std::cout << "ASSUMING THAT THIS IS NOP!\n";
+        sllv(cpu, opcode);
+        break;
+    }
+    case 0x6: //srlv
+    {
+        srlv(cpu, opcode);
         break;
     }
     case 0x8: //jr
     {
         jr(cpu, opcode);
+        break;
+    }
+    case 0x12: //mflo
+    {
+        mflo(cpu, opcode);
+        break;
+    }
+    case 0x19: //multu
+    {
+        multu(cpu, opcode);
         break;
     }
     case 0x20: //add
@@ -399,6 +527,11 @@ void special_handler(CPU &cpu, uint32_t opcode)
         addu(cpu, opcode);
         break;
     }
+    case 0x23: //subu
+    {
+        subu(cpu, opcode);
+        break;
+    }
     case 0x24: //and
     {
         _and(cpu, opcode);
@@ -407,6 +540,11 @@ void special_handler(CPU &cpu, uint32_t opcode)
     case 0x25: //or
     {
         _or(cpu, opcode);
+        break;
+    }
+    case 0x26: //xor
+    {
+        _xor(cpu, opcode);
         break;
     }
     case 0x2a: //slt
@@ -631,5 +769,55 @@ void blezl(CPU &cpu, uint32_t opcode)
     {
         cpu.emulate_cycle(delay_slot); //emulate delay slots
         cpu.pc = branch_addr - 4;
+    }
+}
+void bgezal(CPU &cpu, uint32_t opcode)
+{
+
+    uint8_t rs = (opcode >> 21) & 0b1111'1;
+    int64_t imm = (opcode & 0b1111'1111'1111'1111);
+    if (DEBUG)
+    {
+        cpu.debug << std::hex << "bgezal - " << opcode << "\n rt: "
+                  << " rs: " << (int)rs << " imm: " << (int)imm << "\n\n";
+    }
+    uint32_t delay_slot = cpu.pc + 4;
+    cpu.emulate_cycle(delay_slot); //emulate delay slots
+    uint64_t branch_addr = imm << 2;
+    if (cpu.operation_mode)
+    {
+        branch_addr = sign_extension(17, 64, branch_addr);
+    }
+    else
+    {
+        branch_addr = sign_extension(17, 32, branch_addr);
+    }
+
+    branch_addr += delay_slot;
+    if (cpu.operation_mode == 0)
+    {
+        branch_addr &= 0b1111'1111'1111'1111'1111'1111'1111'1111;
+    }
+    if ((int32_t)cpu.regs[rs] >= 0)
+    {
+        cpu.pc = branch_addr - 4;
+    }
+}
+void regimm_handler(CPU &cpu, uint32_t opcode)
+{
+    uint8_t instr = (opcode >> 16) & 0b11'1111;
+    switch (instr)
+    {
+    case 0x11: //bgezal
+    {
+        bgezal(cpu, opcode);
+        break;
+    }
+    default:
+    {
+        std::cout << "REGIMM: " << std::hex << (int)instr << " not implemented!";
+        exit(0);
+        break;
+    }
     }
 }

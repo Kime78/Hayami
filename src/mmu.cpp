@@ -26,6 +26,7 @@ uint32_t MMU::virtual_to_physical_direct(uint64_t virt)
 }
 uint32_t MMU::virtual_to_physical_tbl(uint64_t virt)
 {
+    //return virt & 0x1fffffff;
 }
 uint64_t MMU::read64(uint64_t addr)
 {
@@ -334,7 +335,7 @@ uint8_t MMU::read8(uint64_t addr)
         return rdram[phys];
     }
 
-    if (phys >= 0x03F00000 && phys <= 0x3FFFFFFF)
+    if (phys >= 0x03F00000 && phys <= 0x03FFFFFF)
     {
         return rdram_regs[phys - 0x03F00000];
     }
@@ -591,10 +592,10 @@ void MMU::write32(uint64_t addr, uint32_t value)
     uint64_t phys = virt_to_phys(addr);
     if (phys >= 0x00000000 && phys <= 0x007FFFFF)
     {
-        rdram_regs[phys - 0x03F00000] = nibble4;
-        rdram_regs[phys - 0x03F00000 + 1] = nibble3;
-        rdram_regs[phys - 0x03F00000 + 2] = nibble2;
-        rdram_regs[phys - 0x03F00000 + 3] = nibble1;
+        rdram[phys] = nibble4;
+        rdram[phys + 1] = nibble3;
+        rdram[phys + 2] = nibble2;
+        rdram[phys + 3] = nibble1;
     }
 
     if (phys >= 0x04000000 && phys <= 0x04000FFF)
@@ -660,9 +661,10 @@ void MMU::write32(uint64_t addr, uint32_t value)
             //pi dma
             for (uint32_t i = 0; i <= value / 4; i++)
             {
-                uint32_t source = read32(periph_int[0x4] + (i * 4));
-                uint32_t dest = periph_int[0x0] + (i * 4);
-                write32(dest, source);
+                uint32_t write_to = read32(0x84600004) + 0x80000000;
+                uint32_t val = read32(write_to + (i * 4));
+                uint32_t dest = read32(0x84600000) + (i * 4);
+                write32(dest + 0x80000000, val);
             }
         }
         periph_int[phys - 0x04600000] = nibble4;
@@ -705,8 +707,8 @@ void MMU::write16(uint64_t addr, uint16_t value)
     uint64_t phys = virt_to_phys(addr);
     if (phys >= 0x00000000 && phys <= 0x007FFFFF)
     {
-        rdram_regs[phys - 0x03F00000] = nibble2;
-        rdram_regs[phys - 0x03F00000 + 1] = nibble1;
+        rdram[phys] = nibble2;
+        rdram[phys + 1] = nibble1;
     }
 
     if (phys >= 0x04000000 && phys <= 0x04000FFF)
@@ -784,7 +786,7 @@ void MMU::write8(uint64_t addr, uint8_t value)
     uint64_t phys = virt_to_phys(addr);
     if (phys >= 0x00000000 && phys <= 0x007FFFFF)
     {
-        rdram_regs[phys - 0x03F00000 + 1] = nibble1;
+        rdram[phys + 1] = nibble1;
     }
 
     if (phys >= 0x04000000 && phys <= 0x04000FFF)
@@ -856,6 +858,10 @@ void MMU::load_rom(std::string path)
         pos++;
     }
 
+    for (int i = 0; i < 0xfff; i++)
+    {
+        cartbridge_copy[i] = rom[i + 0x0B000000];
+    }
     // std::fstream fin(path.c_str(), std::ios::binary);
     // uint8_t x;
     // int k = 0;
@@ -867,5 +873,5 @@ void MMU::load_rom(std::string path)
 
 MMU::MMU()
 {
-    load_rom("./roms/CPUADD.N64");
+    load_rom("./roms/basic.z64");
 }

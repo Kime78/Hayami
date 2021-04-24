@@ -15,6 +15,7 @@ public:
     void emulate_cycle(uint32_t opcode);
     std::ofstream debug;
     uint64_t pc;
+    uint64_t LO, HI;
     bool operation_mode = 0; //32 bit or 64 bit
 
 private:

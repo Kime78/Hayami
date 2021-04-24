@@ -18,3 +18,4 @@ extern void xori(CPU &cpu, uint32_t opcode);
 extern void jr(CPU &cpu, uint32_t opcode);
 extern void bnel(CPU &cpu, uint32_t opcode);
 extern void blezl(CPU &cpu, uint32_t opcode);
+extern void regimm_handler(CPU &cpu, uint32_t opcode);

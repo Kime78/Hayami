@@ -1,13 +1,102 @@
 #include <iostream>
 #include <string.h>
 #include "instructions.hpp"
+#include "CRC.h"
 
 CPU::CPU()
 {
     mmu = std::make_unique<MMU>();
     simulate_pif();
     debug.open("debug.out");
-    //debug.open("debug.out");
+
+    std::string region = "NTSC";
+    switch (mmu->cartbridge_copy[0x3E])
+    {
+    case 'A':
+        region = "NTSC";
+        break; //Asia
+    case 'B':
+        region = "NTSC";
+        break; //Brazil
+    case 'C':
+        region = "NTSC";
+        break; //China
+    case 'D':
+        region = "PAL";
+        break; //Germany
+    case 'E':
+        region = "NTSC";
+        break; //North America
+    case 'F':
+        region = "PAL";
+        break; //France
+    case 'G':
+        region = "NTSC";
+        break; //Gateway 64 (NTSC)
+    case 'H':
+        region = "PAL";
+        break; //Netherlands
+    case 'I':
+        region = "PAL";
+        break; //Italy
+    case 'J':
+        region = "NTSC";
+        break; //Japan
+    case 'K':
+        region = "NTSC";
+        break; //Korea
+    case 'L':
+        region = "PAL";
+        break; //Gateway 64 (PAL)
+    case 'N':
+        region = "NTSC";
+        break; //Canada
+    case 'P':
+        region = "PAL";
+        break; //Europe
+    case 'S':
+        region = "PAL";
+        break; //Spain
+    case 'U':
+        region = "PAL";
+        break; //Australia
+    case 'W':
+        region = "PAL";
+        break; //Scandanavia
+    case 'X':
+        region = "PAL";
+        break; //Europe
+    case 'Y':
+        region = "PAL";
+        break; //Europe
+    }
+
+    bool ntsc = region == "NTSC";
+    std::string cic = ntsc ? "CIC-NUS-6102" : "CIC-NUS-7101";
+    uint8_t test[0xfff];
+    strcpy((char *)test, (char *)&mmu->cartbridge_copy[0x40]);
+    std::uint32_t crc32 = CRC::Calculate(test, sizeof(test), CRC::CRC_32());
+    if (crc32 == 0x1deb51a9)
+        cic = ntsc ? "CIC-NUS-6101" : "CIC-NUS-7102";
+    if (crc32 == 0xc08e5bd6)
+        cic = ntsc ? "CIC-NUS-6102" : "CIC-NUS-7101";
+    if (crc32 == 0x03b8376a)
+        cic = ntsc ? "CIC-NUS-6103" : "CIC-NUS-7103";
+    if (crc32 == 0xcf7f41dc)
+        cic = ntsc ? "CIC-NUS-6105" : "CIC-NUS-7105";
+    if (crc32 == 0xd1059c6a)
+        cic = ntsc ? "CIC-NUS-6106" : "CIC-NUS-7106";
+
+    if (cic == "CIC-NUS-6101" || cic == "CIC-NUS-7102")
+        mmu->write32(0x80000024, 0x00043f3f);
+    if (cic == "CIC-NUS-6102" || cic == "CIC-NUS-7101")
+        mmu->write32(0x80000024, 0x00003f3f);
+    if (cic == "CIC-NUS-6103" || cic == "CIC-NUS-7103")
+        mmu->write32(0x80000024, 0x0000783f);
+    if (cic == "CIC-NUS-6105" || cic == "CIC-NUS-7105")
+        mmu->write32(0x80000024, 0x0000913f);
+    if (cic == "CIC-NUS-6106" || cic == "CIC-NUS-7106")
+        mmu->write32(0x80000024, 0x0000853f);
 }
 void CPU::simulate_pif()
 {
@@ -44,20 +133,29 @@ void CPU::simulate_pif()
 
 void CPU::emulate_cycle(uint32_t arg)
 {
+    //std::cout << std::hex << (int)mmu->read8(0xb0000010) << '\n';
+    regs[0] = 0;
     uint32_t opcode = mmu->read32(arg);
     uint8_t instr = (opcode >> 26) & 0b11'1111;
-    std::cout << "PC: " << arg << " Instruction: " << std::hex << (int)instr << ": " << (int)opcode << " SP: " << (uint64_t)regs[30] << '\n';
-    if (pc == 0x80000000)
+    //std::cout << "PC: " << std::hex << arg << " Instruction: " << (int)instr << ": " << (int)opcode << '\n';
+    if (pc == 0x800001AC) //40 important
     {
+        //todo debug why this has cursed address
         pc = pc;
-        exit(0);
+        //exit(0);
     }
+
     //std::cout << std::hex << regs[15] << '\n';
     switch (instr)
     {
     case 0x0: //special :deepfried:
     {
         special_handler(*this, opcode);
+        break;
+    }
+    case 0x1: //regimm handler
+    {
+        regimm_handler(*this, opcode);
         break;
     }
     case 0x3: //jal
@@ -158,7 +256,7 @@ void CPU::emulate_cycle(uint32_t arg)
         break;
     }
     default:
-        std::cout << "Instruction: " << std::hex << (int)instr << ": " << (int)opcode << " is not implemented";
+        std::cout << "PC: " << std::hex << (uint64_t)pc << " Instruction: " << (int)instr << ": " << (int)opcode << " is not implemented";
         exit(-1);
         break;
     }

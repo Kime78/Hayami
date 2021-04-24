@@ -16,8 +16,10 @@ public:
     void write16(uint64_t addr, uint16_t value);
     void write8(uint64_t addr, uint8_t value);
     MMU();
+    uint8_t cartbridge_copy[0xfff];
 
 private:
+    std::vector<uint8_t> rom;
     std::array<uint8_t, 0x800000> rdram;
     std::array<uint8_t, 0xFFFFF> rdram_regs;
     std::array<uint8_t, 0xFFF> sp_dmem;
@@ -33,7 +35,6 @@ private:
     std::array<uint8_t, 0xFFFFF> serial_int;
     std::array<uint8_t, 0x7BF> pif_rom;
     std::array<uint8_t, 0x3F> pif_ram;
-    std::vector<uint8_t> rom;
     uint32_t virtual_to_physical_direct(uint64_t virt); //KSEG0 KSEG1
     uint32_t virtual_to_physical_tbl(uint64_t virt);    //KUSEG KSSEG KSEG3
     uint32_t virt_to_phys(uint64_t virt);
