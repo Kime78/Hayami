@@ -874,5 +874,5 @@ void MMU::load_rom(std::string path)
 
 MMU::MMU()
 {
-    load_rom("./roms/slti.z64");
+    load_rom("./roms/CPUADDU.N64");
 }

@@ -92,7 +92,7 @@ void addiu(CPU &cpu, uint32_t opcode)
     }
 
     //imm = sign_extension(16, 64, imm);
-    int64_t result = (int32_t)cpu.regs[rs] + imm;
+    int64_t result = (int32_t)cpu.regs[rs] + (int64_t)imm;
     cpu.regs[rt] = result;
 }
 
@@ -108,7 +108,7 @@ void lw(CPU &cpu, uint32_t opcode)
     }
 
     //imm = sign_extension(16, 64, imm);
-    addr += imm;
+    addr += (int64_t)imm;
 
     cpu.regs[rt] = (int64_t)((int32_t)cpu.mmu->read32(addr));
 }
@@ -129,11 +129,7 @@ void bne(CPU &cpu, uint32_t opcode)
     branch_addr = sign_extension(17, 64, branch_addr);
 
     branch_addr += delay_slot;
-    //sus
-    // if (cpu.operation_mode == 0)
-    // {
-    //     branch_addr &= 0b1111'1111'1111'1111'1111'1111'1111'1111;
-    // }
+
     if (cpu.regs[rs] != cpu.regs[rt])
     {
         cpu.pc = branch_addr - 4;
@@ -151,7 +147,7 @@ void sw(CPU &cpu, uint32_t opcode)
         cpu.debug << std::hex << "sw - " << opcode << "\n rt: " << (int)rt << " base: " << (int)base << " imm: " << (int)imm << "\n\n";
     }
 
-    addr += imm;
+    addr += (int64_t)imm;
 
     cpu.mmu->write32(addr, cpu.regs[rt]);
     //std::cout << "SW: " << std::hex << (uint32_t)cpu.mmu->read32((uint32_t)cpu.regs[29]) << '\n';
@@ -161,7 +157,7 @@ void ori(CPU &cpu, uint32_t opcode)
 {
     uint8_t rt = (opcode >> 16) & 0b1111'1;
     uint8_t rs = (opcode >> 21) & 0b1111'1;
-    int64_t imm = (opcode & 0b1111'1111'1111'1111);
+    uint64_t imm = (opcode & 0b1111'1111'1111'1111);
     if (DEBUG)
     {
         cpu.debug << std::hex << "ori - " << opcode << "\n rt: " << (int)rt << " rs: " << (int)rs << " imm: " << (int)imm << "\n\n";
@@ -339,12 +335,12 @@ void multu(CPU &cpu, uint32_t opcode)
         cpu.debug << std::hex << "subu - " << opcode << "\n rt: " << (int)rt << " rs: " << (int)rs << " rd: "
                   << "\n\n";
     }
-    int32_t x = cpu.regs[rt];
-    int32_t y = cpu.regs[rs];
+    uint32_t x = cpu.regs[rt];
+    uint32_t y = cpu.regs[rs];
 
     uint64_t rez = x * y; //change to u128
-    cpu.LO = rez & 0b1111'1111'1111'1111;
-    cpu.HI = (rez >> 16) & 0b1111'1111'1111'1111;
+    cpu.LO = rez & 0xFFFFFFFF;
+    cpu.HI = (rez >> 16) & 0xFFFFFFFF;
 
     //sus
     cpu.LO = sign_extension(32, 64, cpu.LO);
@@ -505,11 +501,6 @@ void beq(CPU &cpu, uint32_t opcode)
     branch_addr = sign_extension(17, 64, branch_addr);
 
     branch_addr += delay_slot;
-    //sus
-    // if (cpu.operation_mode == 0)
-    // {
-    //     branch_addr &= 0b1111'1111'1111'1111'1111'1111'1111'1111;
-    // }
 
     if (cpu.regs[rs] == cpu.regs[rt])
     {
@@ -567,12 +558,6 @@ void beql(CPU &cpu, uint32_t opcode)
 
     branch_addr += delay_slot;
 
-    //sus
-    // if (cpu.operation_mode == 0)
-    // {
-    //     branch_addr &= 0b1111'1111'1111'1111'1111'1111'1111'1111;
-    // }
-
     if (cpu.regs[rs] == cpu.regs[rt])
     {
         cpu.emulate_cycle(delay_slot); //emulate delay slots
@@ -588,7 +573,7 @@ void andi(CPU &cpu, uint32_t opcode)
 {
     uint8_t rt = (opcode >> 16) & 0b1111'1;
     uint8_t rs = (opcode >> 21) & 0b1111'1;
-    int16_t imm = (opcode & 0b1111'1111'1111'1111);
+    uint16_t imm = (opcode & 0b1111'1111'1111'1111);
 
     if (DEBUG)
     {
@@ -601,7 +586,7 @@ void xori(CPU &cpu, uint32_t opcode)
 {
     uint8_t rt = (opcode >> 16) & 0b1111'1;
     uint8_t rs = (opcode >> 21) & 0b1111'1;
-    int16_t imm = (opcode & 0b1111'1111'1111'1111);
+    uint16_t imm = (opcode & 0b1111'1111'1111'1111);
 
     if (DEBUG)
     {
@@ -625,11 +610,6 @@ void bnel(CPU &cpu, uint32_t opcode)
     branch_addr = sign_extension(17, 64, branch_addr);
 
     branch_addr += delay_slot;
-    //sus
-    // if (cpu.operation_mode == 0)
-    // {
-    //     branch_addr &= 0b1111'1111'1111'1111'1111'1111'1111'1111;
-    // }
 
     if (cpu.regs[rs] != cpu.regs[rt])
     {
@@ -657,11 +637,6 @@ void blezl(CPU &cpu, uint32_t opcode)
     branch_addr = sign_extension(17, 64, branch_addr);
 
     branch_addr += delay_slot;
-    //sus
-    // if (cpu.operation_mode == 0)
-    // {
-    //     branch_addr &= 0b1111'1111'1111'1111'1111'1111'1111'1111;
-    // }
 
     if (cpu.regs[rs] <= cpu.regs[rt])
     {
@@ -689,11 +664,7 @@ void bgezal(CPU &cpu, uint32_t opcode)
     branch_addr = sign_extension(17, 64, branch_addr);
 
     branch_addr += delay_slot;
-    //sus
-    // if (cpu.operation_mode == 0)
-    // {
-    //     branch_addr &= 0b1111'1111'1111'1111'1111'1111'1111'1111;
-    // }
+
     if ((int32_t)cpu.regs[rs] >= 0)
     {
         cpu.pc = branch_addr - 4;
@@ -768,11 +739,11 @@ void lbu(CPU &cpu, uint32_t opcode)
     uint64_t addr = cpu.regs[base];
     if (DEBUG)
     {
-        cpu.debug << std::hex << "lw - " << opcode << "\n rt: " << (int)cpu.regs[rt] << " base: " << (int)cpu.regs[base] << " imm: " << (int)imm << "\n\n";
+        cpu.debug << std::hex << "lbu - " << opcode << "\n rt: " << (int)cpu.regs[rt] << " base: " << (int)cpu.regs[base] << " imm: " << (int)imm << "\n\n";
     }
 
     //imm = sign_extension(16, 64, imm);
-    addr += imm;
+    addr += (int64_t)imm;
 
     cpu.regs[rt] = cpu.mmu->read8(addr);
 }
@@ -785,11 +756,11 @@ void lb(CPU &cpu, uint32_t opcode)
     uint64_t addr = cpu.regs[base];
     if (DEBUG)
     {
-        cpu.debug << std::hex << "lw - " << opcode << "\n rt: " << (int)cpu.regs[rt] << " base: " << (int)cpu.regs[base] << " imm: " << (int)imm << "\n\n";
+        cpu.debug << std::hex << "lb - " << opcode << "\n rt: " << (int)cpu.regs[rt] << " base: " << (int)cpu.regs[base] << " imm: " << (int)imm << "\n\n";
     }
 
     //imm = sign_extension(16, 64, imm);
-    addr += imm;
+    addr += (int64_t)imm;
 
     cpu.regs[rt] = (int64_t)((int32_t)((int16_t)((int8_t)cpu.mmu->read8(addr))));
 }
@@ -829,7 +800,7 @@ void lwu(CPU &cpu, uint32_t opcode)
     }
 
     //imm = sign_extension(16, 64, imm);
-    addr += imm;
+    addr += (int64_t)imm;
 
     cpu.regs[rt] = cpu.mmu->read32(addr);
 }
@@ -843,7 +814,7 @@ void daddi(CPU &cpu, uint32_t opcode) //TODO: fix me
         cpu.debug << std::hex << "addi - " << opcode << "\n rt: " << (int)rt << " rs: " << (int)rs << " imm: " << (int)imm << "\n\n";
     }
 
-    int64_t tmp = cpu.regs[rs] + imm;
+    int64_t tmp = cpu.regs[rs] + (int64_t)imm;
     // if (!(tmp >> 64)) //is this u128 lmao
     cpu.regs[rt] = (int64_t)tmp;
 }
@@ -873,8 +844,75 @@ void sb(CPU &cpu, uint32_t opcode)
         cpu.debug << std::hex << "sw - " << opcode << "\n rt: " << (int)rt << " base: " << (int)base << " imm: " << (int)imm << "\n\n";
     }
 
-    addr += imm;
+    addr += (int64_t)imm;
 
     cpu.mmu->write8(addr, cpu.regs[rt]);
+    //std::cout << "SW: " << std::hex << (uint32_t)cpu.mmu->read32((uint32_t)cpu.regs[29]) << '\n';
+}
+void lhu(CPU &cpu, uint32_t opcode)
+{
+    uint8_t rt = (opcode >> 16) & 0b1111'1;
+    uint8_t base = (opcode >> 21) & 0b1111'1;
+    int16_t imm = (opcode & 0b1111'1111'1111'1111);
+    uint64_t addr = cpu.regs[base];
+    if (DEBUG)
+    {
+        cpu.debug << std::hex << "lhu - " << opcode << "\n rt: " << (int)cpu.regs[rt] << " base: " << (int)cpu.regs[base] << " imm: " << (int)imm << "\n\n";
+    }
+
+    //imm = sign_extension(16, 64, imm);
+    addr += (int64_t)imm;
+
+    cpu.regs[rt] = cpu.mmu->read16(addr);
+}
+
+void ld(CPU &cpu, uint32_t opcode)
+{
+    uint8_t rt = (opcode >> 16) & 0b1111'1;
+    uint8_t base = (opcode >> 21) & 0b1111'1;
+    int16_t imm = (opcode & 0b1111'1111'1111'1111);
+    uint64_t addr = cpu.regs[base];
+    if (DEBUG)
+    {
+        cpu.debug << std::hex << "lhu - " << opcode << "\n rt: " << (int)cpu.regs[rt] << " base: " << (int)cpu.regs[base] << " imm: " << (int)imm << "\n\n";
+    }
+
+    //imm = sign_extension(16, 64, imm);
+    addr += (int64_t)imm;
+
+    cpu.regs[rt] = cpu.mmu->read64(addr);
+}
+
+void lh(CPU &cpu, uint32_t opcode)
+{
+    uint8_t rt = (opcode >> 16) & 0b1111'1;
+    uint8_t base = (opcode >> 21) & 0b1111'1;
+    int16_t imm = (opcode & 0b1111'1111'1111'1111);
+    uint64_t addr = cpu.regs[base];
+    if (DEBUG)
+    {
+        cpu.debug << std::hex << "lh - " << opcode << "\n rt: " << (int)cpu.regs[rt] << " base: " << (int)cpu.regs[base] << " imm: " << (int)imm << "\n\n";
+    }
+
+    //imm = sign_extension(16, 64, imm);
+    addr += (int64_t)imm;
+
+    cpu.regs[rt] = (int64_t)((int16_t)cpu.mmu->read16(addr));
+}
+
+void sh(CPU &cpu, uint32_t opcode)
+{
+    uint8_t rt = (opcode >> 16) & 0b1111'1;
+    uint8_t base = (opcode >> 21) & 0b1111'1;
+    int16_t imm = (opcode & 0b1111'1111'1111'1111);
+    uint64_t addr = cpu.regs[base];
+    if (DEBUG)
+    {
+        cpu.debug << std::hex << "sh - " << opcode << "\n rt: " << (int)rt << " base: " << (int)base << " imm: " << (int)imm << "\n\n";
+    }
+
+    addr += (int64_t)imm;
+
+    cpu.mmu->write16(addr, cpu.regs[rt]);
     //std::cout << "SW: " << std::hex << (uint32_t)cpu.mmu->read32((uint32_t)cpu.regs[29]) << '\n';
 }

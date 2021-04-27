@@ -122,14 +122,14 @@ void CPU::simulate_pif()
         //std::cout << (uint64_t)mmu->read64(0xA4000000 + ptr) << std::endl;
     }
 
-    pc = 0xFFFFFFFFA4000040; //NEEDED
+    // pc = 0xFFFFFFFFA4000040; //NEEDED
 
     //BULLSHIT
-    // pc = 0xFFFFFFFF80001000;
-    // for (size_t i = 0; i < 0x100000; i += 4)
-    // {
-    //     mmu->write32(0xFFFFFFFF80001000 + i, mmu->read32(0x90001000 + i));
-    // }
+    pc = 0xFFFFFFFF80001000;
+    for (size_t i = 0; i < 0x100000; i += 4)
+    {
+        mmu->write32(0xFFFFFFFF80001000 + i, mmu->read32(0x90001000 + i));
+    }
 }
 
 // uint8_t CPU::get_opcode()
@@ -145,7 +145,13 @@ void CPU::emulate_cycle(int32_t arg)
     int64_t argument = (int64_t)arg;
     uint32_t opcode = mmu->read32(argument);
     uint8_t instr = (opcode >> 26) & 0b11'1111;
-    //std::cout << "PC: " << std::hex << arg << ' ' << (int64_t)regs[30] << '\n'; //<< " Instruction: " << (int)instr << ": " << (int)opcode << '\n';
+
+    std::cout << "PC: " << std::hex << arg << ' ' << (int64_t)regs[30] << '\n'; //<< " Instruction: " << (int)instr << ": " << (int)opcode << '\n';
+    if (regs[30])
+    {
+        //update_gpu(*this);
+        //std::cout << std::hex << regs[30] << '\n';
+    }
     if (arg == 0x800001AC) //40 important
     {
         //todo debug why this has cursed address
@@ -273,6 +279,11 @@ void CPU::emulate_cycle(int32_t arg)
         lb(*this, opcode);
         break;
     }
+    case 0x21: //lh
+    {
+        lh(*this, opcode);
+        break;
+    }
     case 0x23: //lw
     {
         lw(*this, opcode);
@@ -281,6 +292,11 @@ void CPU::emulate_cycle(int32_t arg)
     case 0x24:
     {
         lbu(*this, opcode);
+        break;
+    }
+    case 0x25: //lhu
+    {
+        lhu(*this, opcode);
         break;
     }
     case 0x27: //lwu
@@ -293,6 +309,11 @@ void CPU::emulate_cycle(int32_t arg)
         sb(*this, opcode);
         break;
     }
+    case 0x29: //sh
+    {
+        sh(*this, opcode);
+        break;
+    }
     case 0x2B: //sw
     {
         sw(*this, opcode);
@@ -300,6 +321,11 @@ void CPU::emulate_cycle(int32_t arg)
     }
     case 0x2f: //cache
     {
+        break;
+    }
+    case 0x37: //ld
+    {
+        ld(*this, opcode);
         break;
     }
     default:

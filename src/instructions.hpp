@@ -27,3 +27,7 @@ extern void lwu(CPU &cpu, uint32_t opcode);
 extern void daddi(CPU &cpu, uint32_t opcode);
 extern void jral(CPU &cpu, uint32_t opcode);
 extern void sb(CPU &cpu, uint32_t opcode);
+extern void lhu(CPU &cpu, uint32_t opcode);
+extern void ld(CPU &cpu, uint32_t opcode);
+extern void lh(CPU &cpu, uint32_t opcode);
+extern void sh(CPU &cpu, uint32_t opcode);
