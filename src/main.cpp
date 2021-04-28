@@ -92,7 +92,7 @@ int main(int argc, char *args[])
 					texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, width, height);
 					//update_gpu(cpu);
 					fake = 0;
-					SDL_UpdateTexture(texture, NULL, new_pixels, width * 4);
+					SDL_UpdateTexture(texture, NULL, new_pixels, height * 4);
 					SDL_RenderClear(renderer);
 					SDL_RenderCopy(renderer, texture, NULL, NULL);
 					SDL_RenderPresent(renderer);
