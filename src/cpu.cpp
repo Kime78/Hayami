@@ -122,14 +122,14 @@ void CPU::simulate_pif()
         //std::cout << (uint64_t)mmu->read64(0xA4000000 + ptr) << std::endl;
     }
 
-    //pc = 0xFFFFFFFFA4000040; //NEEDED
+    pc = 0xFFFFFFFFA4000040; //NEEDED
 
     //BULLSHIT
-    pc = 0xFFFFFFFF80001000;
-    for (size_t i = 0; i < 0x100000; i += 4)
-    {
-        mmu->write32(0xFFFFFFFF80001000 + i, mmu->read32(0x90001000 + i));
-    }
+    // pc = 0xFFFFFFFF80001000;
+    // for (size_t i = 0; i < 0x100000; i += 4)
+    // {
+    //     mmu->write32(0xFFFFFFFF80001000 + i, mmu->read32(0x90001000 + i));
+    // }
 }
 
 // uint8_t CPU::get_opcode()

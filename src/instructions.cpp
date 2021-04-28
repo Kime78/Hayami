@@ -641,7 +641,7 @@ void blezl(CPU &cpu, uint32_t opcode)
 
     branch_addr += delay_slot;
 
-    if (cpu.regs[rs] <= 0)
+    if ((int64_t)cpu.regs[rs] <= 0)
     {
         cpu.emulate_cycle(delay_slot); //emulate delay slots
         cpu.pc = branch_addr - 4;
@@ -786,7 +786,7 @@ void bgtz(CPU &cpu, uint32_t opcode)
 
     branch_addr += delay_slot;
 
-    if (cpu.regs[rs] > 0)
+    if ((int64_t)cpu.regs[rs] > 0)
     {
         cpu.pc = branch_addr - 4;
     }
