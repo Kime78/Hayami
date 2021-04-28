@@ -122,7 +122,7 @@ void CPU::simulate_pif()
         //std::cout << (uint64_t)mmu->read64(0xA4000000 + ptr) << std::endl;
     }
 
-    // pc = 0xFFFFFFFFA4000040; //NEEDED
+    //pc = 0xFFFFFFFFA4000040; //NEEDED
 
     //BULLSHIT
     pc = 0xFFFFFFFF80001000;
@@ -146,7 +146,7 @@ void CPU::emulate_cycle(int32_t arg)
     uint32_t opcode = mmu->read32(argument);
     uint8_t instr = (opcode >> 26) & 0b11'1111;
 
-    std::cout << "PC: " << std::hex << arg << ' ' << (int64_t)regs[30] << '\n'; //<< " Instruction: " << (int)instr << ": " << (int)opcode << '\n';
+    //std::cout << "PC: " << std::hex << arg << ' ' << (int64_t)regs[30] << '\n'; //<< " Instruction: " << (int)instr << ": " << (int)opcode << '\n';
     if (regs[30])
     {
         //update_gpu(*this);

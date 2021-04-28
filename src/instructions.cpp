@@ -92,7 +92,7 @@ void addiu(CPU &cpu, uint32_t opcode)
     }
 
     //imm = sign_extension(16, 64, imm);
-    int64_t result = (int32_t)cpu.regs[rs] + (int64_t)imm;
+    int64_t result = (int32_t)((int32_t)cpu.regs[rs] + (int32_t)imm);
     cpu.regs[rt] = result;
 }
 
@@ -175,7 +175,7 @@ void addi(CPU &cpu, uint32_t opcode) //TODO: fix me
         cpu.debug << std::hex << "addi - " << opcode << "\n rt: " << (int)rt << " rs: " << (int)rs << " imm: " << (int)imm << "\n\n";
     }
 
-    int32_t tmp = cpu.regs[rs] + imm;
+    int32_t tmp = (int32_t)cpu.regs[rs] + (int32_t)imm;
     // if (!(tmp >> 64)) //is this u128 lmao
     cpu.regs[rt] = (int64_t)tmp;
 }

@@ -34,7 +34,7 @@ uint8_t *update_gpu(CPU &cpu)
 		}
 		//uwu << "\n\n\n\n\n";
 	}
-	std::cout << std::hex << ptr << ' ' << width << ' ' << height << ' ' << (int)format << '\n';
+	//std::cout << std::hex << ptr << ' ' << width << ' ' << height << ' ' << (int)format << '\n';
 
 	//exit(0);
 	if (width || height)
