@@ -31,3 +31,4 @@ extern void lhu(CPU &cpu, uint32_t opcode);
 extern void ld(CPU &cpu, uint32_t opcode);
 extern void lh(CPU &cpu, uint32_t opcode);
 extern void sh(CPU &cpu, uint32_t opcode);
+extern void sd(CPU &cpu, uint32_t opcode);

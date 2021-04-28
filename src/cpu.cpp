@@ -328,6 +328,11 @@ void CPU::emulate_cycle(int32_t arg)
         ld(*this, opcode);
         break;
     }
+    case 0x3f: //sd
+    {
+        sd(*this, opcode);
+        break;
+    }
     default:
         std::cout << "PC: " << std::hex << (uint64_t)pc << " Instruction: " << (int)instr << ": " << (int)opcode << " is not implemented";
         exit(-1);

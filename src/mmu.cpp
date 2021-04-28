@@ -787,62 +787,62 @@ void MMU::write8(uint64_t addr, uint8_t value)
     uint64_t phys = virt_to_phys(addr);
     if (phys >= 0x00000000 && phys <= 0x007FFFFF)
     {
-        rdram[phys + 1] = nibble1;
+        rdram[phys] = nibble1;
     }
 
     if (phys >= 0x04000000 && phys <= 0x04000FFF)
     {
-        sp_dmem[phys - 0x04000000 + 1] = nibble1;
+        sp_dmem[phys - 0x04000000] = nibble1;
     }
 
     if (phys >= 0x04001000 && phys <= 0x04001FFF)
     {
-        sp_imem[phys - 0x04001000 + 1] = nibble1;
+        sp_imem[phys - 0x04001000] = nibble1;
     }
 
     if (phys >= 0x04040000 && phys <= 0x040FFFFF)
     {
-        sp_regs[phys - 0x04040000 + 1] = nibble1;
+        sp_regs[phys - 0x04040000] = nibble1;
     }
 
     if (phys >= 0x04100000 && phys <= 0x041FFFFF)
     {
-        dp_commds[phys - 0x04100000 + 1] = nibble1;
+        dp_commds[phys - 0x04100000] = nibble1;
     }
 
     if (phys >= 0x04300000 && phys <= 0x043FFFFF)
     {
-        mips_int[phys - 0x04300000 + 1] = nibble1;
+        mips_int[phys - 0x04300000] = nibble1;
     }
 
     if (phys >= 0x04400000 && phys <= 0x044FFFFF)
     {
-        video_int[phys - 0x04400000 + 1] = nibble1;
+        video_int[phys - 0x04400000] = nibble1;
     }
 
     if (phys >= 0x04500000 && phys <= 0x045FFFFF)
     {
-        audio_int[phys - 0x04500000 + 1] = nibble1;
+        audio_int[phys - 0x04500000] = nibble1;
     }
 
     if (phys >= 0x04600000 && phys <= 0x046FFFFF)
     {
-        periph_int[phys - 0x04600000 + 1] = nibble1;
+        periph_int[phys - 0x04600000] = nibble1;
     }
 
     if (phys >= 0x04700000 && phys <= 0x047FFFFF)
     {
-        rdram_int[phys - 0x04700000 + 1] = nibble1;
+        rdram_int[phys - 0x04700000] = nibble1;
     }
 
     if (phys >= 0x04800000 && phys <= 0x048FFFFF)
     {
-        serial_int[phys - 0x04800000 + 1] = nibble1;
+        serial_int[phys - 0x04800000] = nibble1;
     }
 
     if (phys >= 0x1FC007C0 && phys <= 0x1FC007FF)
     {
-        pif_ram[phys - 0x1FC007C0 + 1] = nibble1;
+        pif_ram[phys - 0x1FC007C0] = nibble1;
     }
 }
 
@@ -874,5 +874,5 @@ void MMU::load_rom(std::string path)
 
 MMU::MMU()
 {
-    load_rom("./roms/CPUADDU.N64");
+    load_rom("./roms/CPUMULTU.N64");
 }
