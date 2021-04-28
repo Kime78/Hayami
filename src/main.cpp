@@ -27,7 +27,8 @@ uint8_t *update_gpu(CPU &cpu)
 		for (int y = 0; y < height * 4; y++)
 		{
 			//new_pixels[x + width * y] = cpu.mmu->read32(addr + 4 * (x + width * y));
-			new_pixels[x * height + y] = cpu.mmu->read8(addr + x * height + y);
+			uint8_t pixel = cpu.mmu->read8(addr + x * height + y);
+			new_pixels[x * height + y] = pixel;
 			// new_pixels[4 * x + 4 * y * width + 2] = cpu.mmu->read8(ptr + 0xFFFFFFFF00000000 + 4 * x + 4 * y * width + 2);
 			// new_pixels[4 * x + 4 * y * width + 3] = cpu.mmu->read8(ptr + 0xFFFFFFFF00000000 + 4 * x + 4 * y * width + 3);
 			// uwu << (int)cpu.mmu->read8(ptr + x * height + y) << ' ';
@@ -67,26 +68,36 @@ int main(int argc, char *args[])
 			CPU cpu;
 			int fake = 0;
 			SDL_Event e;
+			renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC);
 			while (true)
 			{
 				fake++;
+				const uint32_t width = cpu.mmu->read32(0xFFFFFFFFA4400008);
+				const uint32_t scale = cpu.mmu->read32(0xFFFFFFFFA4400034);
+				uint32_t height = (15 * (scale)) / 64;
+
 				if (fake == 6000)
 				{
-					const uint32_t width = cpu.mmu->read32(0xFFFFFFFFA4400008);
-					const uint32_t scale = cpu.mmu->read32(0xFFFFFFFFA4400034);
-					uint32_t height = (15 * (scale)) / 64;
+					uint8_t *new_pixels = update_gpu(cpu);
+					// for (int x = 0; x < width * 4; x++)
+					// {
+					// 	for (int y = 0; y < height * 4; y++)
+					// 	{
+					// 		uwu << (int)new_pixels[x * height + y] << ' ';
+					// 	}
+					// 	uwu << "\n\n\n\n\n";
+					// }
+					//exit(0);
 
-					renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC);
 					texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, width, height);
 					//update_gpu(cpu);
 					fake = 0;
-					SDL_UpdateTexture(texture, NULL, update_gpu(cpu), width * 4);
+					SDL_UpdateTexture(texture, NULL, new_pixels, width * 4);
 					SDL_RenderClear(renderer);
 					SDL_RenderCopy(renderer, texture, NULL, NULL);
 					SDL_RenderPresent(renderer);
 
 					SDL_DestroyTexture(texture);
-					SDL_DestroyRenderer(renderer);
 
 					SDL_PollEvent(&e);
 					if (e.type == SDL_QUIT)
@@ -103,7 +114,7 @@ int main(int argc, char *args[])
 
 	//Destroy window
 	SDL_DestroyWindow(window);
-
+	SDL_DestroyRenderer(renderer);
 	//Quit SDL subsystems
 	SDL_Quit();
 
