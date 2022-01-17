@@ -4,7 +4,7 @@ find_package(SDL2 REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS})
 
 add_executable(Hayami
-./src/cpu.cpp ./src/cpu.hpp ./src/CRC.h
+./src/cpu.cpp ./src/cpu.hpp
 ./src/instructions.cpp ./src/instructions.hpp 
 ./src/mmu.cpp ./src/mmu.hpp
 ./src/main.cpp

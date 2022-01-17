@@ -851,6 +851,13 @@ void MMU::load_rom(std::string path)
     rom.resize(268'435'456);
 
     FILE *file = fopen(path.c_str(), "rb");
+
+    if(file == 0)
+    {
+        fprintf(stderr, "ROM not found!");
+        exit(EXIT_FAILURE);
+    }
+    
     int pos = 0;
 
     while (fread(&rom[pos + 0x0B000000], 1, 1, file))
@@ -874,5 +881,5 @@ void MMU::load_rom(std::string path)
 
 MMU::MMU()
 {
-    load_rom("./roms/CPUADD.N64");
+    load_rom("./roms/missing/srl_simpleboot.z64");
 }
