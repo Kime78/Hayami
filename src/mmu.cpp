@@ -336,77 +336,77 @@ uint8_t MMU::read8(uint64_t addr)
         return rdram[phys];
     }
 
-    if (phys >= 0x03F00000 && phys <= 0x03FFFFFF)
+    else if (phys >= 0x03F00000 && phys <= 0x03FFFFFF)
     {
         return rdram_regs[phys - 0x03F00000];
     }
 
-    if (phys >= 0x04000000 && phys <= 0x04000FFF)
+    else if (phys >= 0x04000000 && phys <= 0x04000FFF)
     {
         return sp_dmem[phys - 0x04000000];
     }
 
-    if (phys >= 0x04001000 && phys <= 0x04001FFF)
+    else if (phys >= 0x04001000 && phys <= 0x04001FFF)
     {
         return sp_imem[phys - 0x04001000];
     }
 
-    if (phys >= 0x04040000 && phys <= 0x040FFFFF)
+    else if (phys >= 0x04040000 && phys <= 0x040FFFFF)
     {
         return sp_regs[phys - 0x04040000];
     }
 
-    if (phys >= 0x04100000 && phys <= 0x041FFFFF)
+    else if (phys >= 0x04100000 && phys <= 0x041FFFFF)
     {
         return dp_commds[phys - 0x04100000];
     }
 
-    if (phys >= 0x04300000 && phys <= 0x043FFFFF)
+    else if (phys >= 0x04300000 && phys <= 0x043FFFFF)
     {
         return mips_int[phys - 0x04300000];
     }
 
-    if (phys >= 0x04400000 && phys <= 0x044FFFFF)
+    else if (phys >= 0x04400000 && phys <= 0x044FFFFF)
     {
         return video_int[phys - 0x04400000];
     }
 
-    if (phys >= 0x04500000 && phys <= 0x045FFFFF)
+    else if (phys >= 0x04500000 && phys <= 0x045FFFFF)
     {
         return audio_int[phys - 0x04500000 + 7];
     }
 
-    if (phys >= 0x04600000 && phys <= 0x046FFFFF)
+    else if (phys >= 0x04600000 && phys <= 0x046FFFFF)
     {
         return periph_int[phys - 0x04600000];
     }
 
-    if (phys >= 0x04700000 && phys <= 0x047FFFFF)
+    else if (phys >= 0x04700000 && phys <= 0x047FFFFF)
     {
         return rdram_int[phys - 0x04700000];
     }
 
-    if (phys >= 0x04800000 && phys <= 0x048FFFFF)
+    else if (phys >= 0x04800000 && phys <= 0x048FFFFF)
     {
         return serial_int[phys - 0x04800000];
     }
 
-    if (phys >= 0x05000000 && phys <= 0x1FBFFFFF)
+    else if (phys >= 0x05000000 && phys <= 0x1FBFFFFF)
     {
         return rom[phys - 0x05000000];
     }
 
-    if (phys >= 0x1FC00000 && phys <= 0x1FC007BF)
+    else if (phys >= 0x1FC00000 && phys <= 0x1FC007BF)
     {
         return pif_rom[phys - 0x1FC00000];
     }
 
-    if (phys >= 0x1FC007C0 && phys <= 0x1FC007FF)
+    else if (phys >= 0x1FC007C0 && phys <= 0x1FC007FF)
     {
         return pif_ram[phys - 0x1FC007FF];
     }
 
-    if (phys >= 0x1FD00000 && phys <= 0x7FFFFFFF)
+    else if (phys >= 0x1FD00000 && phys <= 0x7FFFFFFF)
     {
         return rom[phys - 0x05000000];
     }
@@ -862,7 +862,6 @@ void MMU::load_rom(std::string path)
 
     while (fread(&rom[pos + 0x0B000000], 1, 1, file))
     {
-        //std::cout << std::hex << (int)Memory.rom[pos] << " ";
         pos++;
     }
 
@@ -870,16 +869,9 @@ void MMU::load_rom(std::string path)
     {
         cartbridge_copy[i] = rom[i + 0x0B000000];
     }
-    // std::fstream fin(path.c_str(), std::ios::binary);
-    // uint8_t x;
-    // int k = 0;
-    // while (fin >> x)
-    // {
-    //     rom[0x05000000 + k++] = x;
-    // }
 }
 
 MMU::MMU()
 {
-    load_rom("./roms/missing/srl_simpleboot.z64");
+    load_rom("./roms/missing/daddiu.z64");
 }

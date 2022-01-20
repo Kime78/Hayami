@@ -71,26 +71,17 @@ int main(int argc, char *args[])
 			renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC);
 			while (true)
 			{
-				fake++;
 				const uint32_t width = cpu.mmu->read32(0xFFFFFFFFA4400008);
 				const uint32_t scale = cpu.mmu->read32(0xFFFFFFFFA4400034);
 				uint32_t height = (15 * (scale)) / 64;
+				fake++;
 
 				if (fake == 6000)
 				{
 					uint8_t *new_pixels = update_gpu(cpu);
-					// for (int x = 0; x < width * 4; x++)
-					// {
-					// 	for (int y = 0; y < height * 4; y++)
-					// 	{
-					// 		uwu << (int)new_pixels[x * height + y] << ' ';
-					// 	}
-					// 	uwu << "\n\n\n\n\n";
-					// }
-					//exit(0);
 
 					texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ABGR8888, SDL_TEXTUREACCESS_STREAMING, width, height);
-					//update_gpu(cpu);
+
 					fake = 0;
 					SDL_UpdateTexture(texture, NULL, new_pixels, width * 4);
 					SDL_RenderClear(renderer);
@@ -98,14 +89,15 @@ int main(int argc, char *args[])
 					SDL_RenderPresent(renderer);
 
 					SDL_DestroyTexture(texture);
-
-					SDL_PollEvent(&e);
-					if (e.type == SDL_QUIT)
-					{
-						SDL_Log("Program quit after %i ticks", e.quit.timestamp);
-						break;
-					}
 				}
+
+				SDL_PollEvent(&e);
+				if (e.type == SDL_QUIT)
+				{
+					SDL_Log("Program quit after %i ticks", e.quit.timestamp);
+					break;
+				}
+
 				cpu.emulate_cycle(cpu.pc);
 				cpu.pc += 4;
 			}
