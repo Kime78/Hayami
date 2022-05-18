@@ -164,6 +164,11 @@ void CPU::emulate_cycle(int32_t arg)
         bne(*this, opcode);
         break;
     }
+    case 0x6: //blez
+    {
+        blez(*this, opcode);
+        break;
+    }
     case 0x7: //bgez
     {
         bgtz(*this, opcode);
@@ -182,6 +187,11 @@ void CPU::emulate_cycle(int32_t arg)
     case 0xA: //slti
     {
         slti(*this, opcode);
+        break;
+    }
+    case 0xB: //sltiu
+    {
+        sltiu(*this, opcode);
         break;
     }
     case 0xC: //andi
@@ -212,7 +222,7 @@ void CPU::emulate_cycle(int32_t arg)
     }
     case 0x11: //mtc1
     {
-        std::cout << "cop1 ";
+        //std::cout << "cop1 ";
         cop_handler(*this, opcode);
         break;
     }

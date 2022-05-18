@@ -1,5 +1,6 @@
 #include "mmu.hpp"
 #include <fstream>
+#include <iostream>
 
 uint32_t MMU::virt_to_phys(uint64_t virt)
 {
@@ -859,11 +860,26 @@ void MMU::load_rom(std::string path)
     }
     
     int pos = 0;
-
     while (fread(&rom[pos + 0x0B000000], 1, 1, file))
     {
         pos++;
     }
+    uint8_t nibble1 = rom[0x0B000000], nibble2 = rom[0x0B000001], nibble3 = rom[0x0B000002], nibble4 = rom[0x0B000003];
+    uint32_t endianess_word = nibble1 << 24 | nibble2 << 16 | nibble3 << 8 | nibble4;
+    //std::cout << std::hex << endianess_word;
+    if(endianess_word == 0x37804012) {
+        //smol endian
+        for(int i = 0; i < pos; i += 4) {
+            uint8_t nibble1 = rom[0x0B000000 + i], nibble2 = rom[0x0B000001 + i], nibble3 = rom[0x0B000002 + i], nibble4 = rom[0x0B000003 + i];
+            rom[0x0B000000 + i] = nibble2;
+            rom[0x0B000001 + i] = nibble1;
+            rom[0x0B000002 + i] = nibble4;
+            rom[0x0B000003 + i] = nibble3;
+        }
+    }
+
+    nibble1 = rom[0x0B000000], nibble2 = rom[0x0B000001], nibble3 = rom[0x0B000002], nibble4 = rom[0x0B000003];
+    endianess_word = nibble1 << 24 | nibble2 << 16 | nibble3 << 8 | nibble4;
 
     for (int i = 0; i < 0xfff; i++)
     {
@@ -873,5 +889,5 @@ void MMU::load_rom(std::string path)
 
 MMU::MMU()
 {
-    load_rom("./roms/missing/daddiu.z64");
+    load_rom("./roms/Namco Museum 64.n64");
 }
